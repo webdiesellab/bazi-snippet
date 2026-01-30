@@ -1,7 +1,7 @@
 /**
- * Plugin Name: Master Tsai Bazi Calculator - Final Version
+ * Plugin Name: Bazi Calculator
  * Description: Accurate Bazi calculator with precise astronomical calculations
- * Version: 25.0
+ * Version: 21.6
  * Author: Web Diesel
  * License: GPL v2 or later
  * Text Domain: web-diesel.com
@@ -70,20 +70,20 @@ class MasterTsaiBaziCalculatorComplete {
         'Yin-Water' => 1    // Tiger Month Stem: Yang-Wood
     );
     
-    // Solar terms for zodiac month starts (approximate dates)
+    // Solar terms for zodiac month starts with improved accuracy
     private $zodiac_month_terms = array(
-        1 => array('name' => 'Xiaohan', 'month' => 1, 'day' => 6),   // Rat
-        2 => array('name' => 'Lichun', 'month' => 2, 'day' => 4),    // Ox
-        3 => array('name' => 'Jingzhe', 'month' => 3, 'day' => 5),   // Tiger
-        4 => array('name' => 'Qingming', 'month' => 4, 'day' => 4),  // Rabbit
-        5 => array('name' => 'Lixia', 'month' => 5, 'day' => 5),     // Dragon
-        6 => array('name' => 'Mangzhong', 'month' => 6, 'day' => 6), // Snake
-        7 => array('name' => 'Xiaoshu', 'month' => 7, 'day' => 7),   // Horse
-        8 => array('name' => 'Liqiu', 'month' => 8, 'day' => 7),     // Goat
-        9 => array('name' => 'Bailu', 'month' => 9, 'day' => 7),     // Monkey
-        10 => array('name' => 'Hanlu', 'month' => 10, 'day' => 8),   // Rooster
-        11 => array('name' => 'Lidong', 'month' => 11, 'day' => 7),  // Dog
-        12 => array('name' => 'Daxue', 'month' => 12, 'day' => 7)    // Pig
+        1 => array('name' => 'Xiaohan', 'month' => 1, 'day' => 6, 'longitude' => 285),
+        2 => array('name' => 'Lichun', 'month' => 2, 'day' => 4, 'longitude' => 315),
+        3 => array('name' => 'Jingzhe', 'month' => 3, 'day' => 5, 'longitude' => 345),
+        4 => array('name' => 'Qingming', 'month' => 4, 'day' => 4, 'longitude' => 15),
+        5 => array('name' => 'Lixia', 'month' => 5, 'day' => 5, 'longitude' => 45),
+        6 => array('name' => 'Mangzhong', 'month' => 6, 'day' => 6, 'longitude' => 75),
+        7 => array('name' => 'Xiaoshu', 'month' => 7, 'day' => 7, 'longitude' => 105),
+        8 => array('name' => 'Liqiu', 'month' => 8, 'day' => 7, 'longitude' => 135),
+        9 => array('name' => 'Bailu', 'month' => 9, 'day' => 7, 'longitude' => 165),
+        10 => array('name' => 'Hanlu', 'month' => 10, 'day' => 8, 'longitude' => 195),
+        11 => array('name' => 'Lidong', 'month' => 11, 'day' => 7, 'longitude' => 225),
+        12 => array('name' => 'Daxue', 'month' => 12, 'day' => 7, 'longitude' => 255)
     );
     
     public function __construct() {
@@ -102,8 +102,9 @@ class MasterTsaiBaziCalculatorComplete {
         ?>
         <div class="bazi-calculator-container">
             <div class="bazi-header">
-                <h1>Master Tsai Bazi Calculator</h1>
-                <p class="bazi-subtitle">Complete and accurate Bazi calculator for all inputs</p>
+                <h1>Bazi Calculator</h1>
+                <p class="bazi-subtitle">Complete and accurate Bazi calculator with solar time correction</p>
+                <p class="bazi-version"></p>
             </div>
             
             <form id="bazi-form" class="bazi-form">
@@ -113,14 +114,14 @@ class MasterTsaiBaziCalculatorComplete {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="birth_year">Birth Year *</label>
-                            <input type="number" id="birth_year" name="birth_year" min="1900" max="2100" value="1972" required>
+                            <input type="number" id="birth_year" name="birth_year" min="1900" max="2100" value="2001" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="birth_month">Birth Month *</label>
                             <select id="birth_month" name="birth_month" required>
                                 <?php for($i = 1; $i <= 12; $i++): ?>
-                                    <option value="<?php echo $i; ?>" <?php echo $i == 2 ? 'selected' : ''; ?>>
+                                    <option value="<?php echo $i; ?>" <?php echo $i == 10 ? 'selected' : ''; ?>>
                                         <?php echo date('F', mktime(0,0,0,$i,1)); ?>
                                     </option>
                                 <?php endfor; ?>
@@ -129,14 +130,14 @@ class MasterTsaiBaziCalculatorComplete {
                         
                         <div class="form-group">
                             <label for="birth_day">Birth Day *</label>
-                            <input type="number" id="birth_day" name="birth_day" min="1" max="31" value="7" required>
+                            <input type="number" id="birth_day" name="birth_day" min="1" max="31" value="15" required>
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label for="birth_hour">Birth Hour (24h) *</label>
-                            <input type="number" id="birth_hour" name="birth_hour" min="0" max="23" value="7" required>
+                            <input type="number" id="birth_hour" name="birth_hour" min="0" max="23" value="17" required>
                         </div>
                         
                         <div class="form-group">
@@ -148,7 +149,7 @@ class MasterTsaiBaziCalculatorComplete {
                             <label for="timezone">Timezone (GMT) *</label>
                             <select id="timezone" name="timezone" required>
                                 <?php for($i = -12; $i <= 14; $i++): ?>
-                                    <option value="<?php echo $i; ?>" <?php echo $i == 2 ? 'selected' : ''; ?>>
+                                    <option value="<?php echo $i; ?>" <?php echo $i == -8 ? 'selected' : ''; ?>>
                                         GMT<?php echo $i >= 0 ? '+' . $i : $i; ?>
                                     </option>
                                 <?php endfor; ?>
@@ -160,14 +161,15 @@ class MasterTsaiBaziCalculatorComplete {
                         <div class="form-group">
                             <label for="gender">Gender *</label>
                             <select id="gender" name="gender" required>
-                                <option value="male" selected>Male</option>
-                                <option value="female">Female</option>
+                                <option value="male">Male</option>
+                                <option value="female" selected>Female</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label for="longitude">Longitude (Optional)</label>
-                            <input type="text" id="longitude" name="longitude" placeholder="e.g., 30" value="">
+                            <label for="longitude">Longitude (Optional, e.g., -118.24)</label>
+                            <input type="text" id="longitude" name="longitude" placeholder="e.g., -118.24 or 121.47" >
+                            <small>Decimal degrees. Positive for East, negative for West. If empty, uses timezone center longitude.</small>
                         </div>
                     </div>
                 </div>
@@ -187,6 +189,10 @@ class MasterTsaiBaziCalculatorComplete {
                     <p><strong>Birth Date:</strong> <span id="result-birthdate"></span></p>
                     <p><strong>Gender:</strong> <span id="result-gender"></span></p>
                     <p><strong>Timezone:</strong> <span id="result-timezone"></span></p>
+                    <p><strong>Longitude:</strong> <span id="result-longitude"></span></p>
+                    <p><strong>Local Solar Time:</strong> <span id="result-solar-time"></span></p>
+                    <p><strong>Solar Longitude:</strong> <span id="result-solar-longitude"></span>°</p>
+                    <p><strong>Zodiac Month:</strong> <span id="result-zodiac-month"></span></p>
                 </div>
                 
                 <div class="four-pillars">
@@ -247,7 +253,7 @@ class MasterTsaiBaziCalculatorComplete {
             
             <div id="bazi-loading" class="bazi-loading" style="display: none;">
                 <div class="loading-spinner"></div>
-                <p>Calculating Bazi chart...</p>
+                <p>Calculating Bazi chart with solar time correction...</p>
             </div>
             
             <div id="bazi-error" class="bazi-error" style="display: none;">
@@ -259,6 +265,7 @@ class MasterTsaiBaziCalculatorComplete {
         .bazi-calculator-container { max-width: 1000px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; }
         .bazi-header { text-align: center; margin-bottom: 30px; }
         .bazi-header h1 { color: #2c3e50; }
+        .bazi-version { color: #4CAF50; font-weight: bold; font-size: 14px; margin-top: 5px; }
         .form-section { background: #f5f5f5; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
         .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
         .form-group { display: flex; flex-direction: column; }
@@ -268,6 +275,8 @@ class MasterTsaiBaziCalculatorComplete {
         .bazi-button { padding: 12px 30px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 0 10px; }
         .reset-btn { background: #757575; }
         .bazi-results { background: white; padding: 20px; border-radius: 5px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .personal-info { background: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .personal-info p { margin: 5px 0; }
         .pillars-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
         .pillar { border: 2px solid #4CAF50; border-radius: 5px; padding: 15px; text-align: center; }
         .pillar-label { font-size: 14px; color: #666; margin-bottom: 5px; }
@@ -331,6 +340,10 @@ class MasterTsaiBaziCalculatorComplete {
                 $('#result-birthdate').text(data.birth_date);
                 $('#result-gender').text(data.gender);
                 $('#result-timezone').text('GMT' + (data.timezone >= 0 ? '+' + data.timezone : data.timezone));
+                $('#result-longitude').text(data.longitude_display);
+                $('#result-solar-time').text(data.local_solar_time);
+                $('#result-solar-longitude').text(data.solar_longitude.toFixed(2));
+                $('#result-zodiac-month').text(data.zodiac_month);
                 
                 $('#year-pillar').text(data.year_pillar);
                 $('#month-pillar').text(data.month_pillar);
@@ -378,19 +391,51 @@ class MasterTsaiBaziCalculatorComplete {
         $longitude = isset($_POST['longitude']) && !empty($_POST['longitude']) ? floatval($_POST['longitude']) : null;
         
         try {
-            // 1. Calculate Bazi Year
+            // Calculate local solar time with longitude correction - только для Month Pillar и солнечной долготы
+            $solar_time_data = $this->calculate_local_solar_time(
+                $birth_year, $birth_month, $birth_day, $birth_hour, $birth_minute,
+                $timezone, $longitude
+            );
+            
+            // Determine longitude display text
+            if ($longitude !== null) {
+                $longitude_display = $longitude . '° (user-provided)';
+            } else {
+                $calculated_longitude = $timezone * 15;
+                $longitude_display = $calculated_longitude . '° (auto from timezone)';
+            }
+            
+            // Get solar longitude for Month Pillar calculation
+            $solar_longitude = $this->calculate_solar_longitude(
+                $solar_time_data['year'],
+                $solar_time_data['month'],
+                $solar_time_data['day'],
+                $solar_time_data['hour'],
+                $solar_time_data['minute']
+            );
+            
+            // Get zodiac month based on solar longitude
+            $zodiac_month_index = $this->get_zodiac_month_by_longitude($solar_longitude);
+            
+            // 1. Calculate Bazi Year using ORIGINAL birth date (not solar corrected)
             $bazi_year = $this->calculate_bazi_year($birth_year, $birth_month, $birth_day);
             
-            // 2. Calculate Four Pillars with CORRECTED year pillar
+            // 2. Calculate Four Pillars
+            // Year Pillar: based on Bazi year
             $year_pillar = $this->calculate_correct_year_pillar($bazi_year);
-            $month_pillar = $this->calculate_month_pillar($birth_year, $birth_month, $birth_day, $year_pillar);
+            
+            // Month Pillar: based on solar longitude (uses solar corrected date)
+            $month_pillar = $this->calculate_month_pillar_by_longitude(
+                $bazi_year, $solar_longitude, $year_pillar
+            );
+            
+            // Day Pillar: based on ORIGINAL birth date (local time), NOT solar corrected
             $day_pillar = $this->calculate_day_pillar($birth_year, $birth_month, $birth_day);
+            
+            // Hour Pillar: based on ORIGINAL birth hour and Day Pillar
             $hour_pillar = $this->calculate_hour_pillar($birth_hour, $day_pillar);
             
-            // 3. Calculate zodiac month
-            $zodiac_month_index = $this->get_zodiac_month_by_date($birth_month, $birth_day);
-            
-            // 4. Calculate Luck Cycles
+            // 3. Calculate Luck Cycles (10 cycles = 100 years)
             $luck_cycles_data = $this->calculate_complete_luck_cycles(
                 $year_pillar, 
                 $month_pillar, 
@@ -399,7 +444,7 @@ class MasterTsaiBaziCalculatorComplete {
                 $gender
             );
             
-            // 5. Create verification URL
+            // 4. Create verification URL
             $verification_url = $this->create_verification_url(
                 $birth_year, $birth_month, $birth_day, $birth_hour, $birth_minute, $timezone, $gender
             );
@@ -410,6 +455,10 @@ class MasterTsaiBaziCalculatorComplete {
                     'birth_date' => sprintf('%04d-%02d-%02d %02d:%02d', $birth_year, $birth_month, $birth_day, $birth_hour, $birth_minute),
                     'gender' => $gender == 'male' ? 'Male' : 'Female',
                     'timezone' => $timezone,
+                    'longitude_display' => $longitude_display,
+                    'local_solar_time' => $solar_time_data['display'],
+                    'solar_longitude' => $solar_longitude,
+                    'zodiac_month' => $this->earthly_branches[$zodiac_month_index],
                     'year_pillar' => $year_pillar,
                     'month_pillar' => $month_pillar,
                     'day_pillar' => $day_pillar,
@@ -431,6 +480,119 @@ class MasterTsaiBaziCalculatorComplete {
         }
         
         wp_send_json($response);
+    }
+    
+    /**
+     * Calculate local solar time with longitude correction (for Month Pillar only)
+     */
+    private function calculate_local_solar_time($year, $month, $day, $hour, $minute, $timezone, $longitude) {
+        // Use mktime to create timestamp (returns integer)
+        $local_timestamp = mktime($hour, $minute, 0, $month, $day, $year);
+        
+        // Если долгота не указана, используем среднюю долготу часового пояса
+        // Каждый часовой пояс имеет ширину 15°, средняя долгота = timezone * 15
+        // GMT-8 = -120°, GMT-6 = -90°, GMT+8 = 120°, и т.д.
+        if ($longitude === null) {
+            $longitude = $timezone * 15;
+            $longitude_source = 'auto (timezone-based)';
+        } else {
+            $longitude_source = 'user-provided';
+        }
+        
+        // Convert to UTC (timezone is in hours)
+        $utc_timestamp = $local_timestamp - ($timezone * 3600);
+        
+        // Calculate day of year (1-366)
+        $day_of_year = date('z', $local_timestamp) + 1;
+        
+        // Calculate equation of time (simplified formula) - in minutes
+        $B = deg2rad((360/365) * ($day_of_year - 81));
+        $equation_of_time_minutes = 9.87 * sin(2*$B) - 7.53 * cos($B) - 1.5 * sin($B);
+        
+        // Longitude correction (1 degree = 4 minutes)
+        $longitude_correction_minutes = ($longitude - ($timezone * 15)) * 4;
+        
+        // Total time correction in minutes
+        $total_correction_minutes = $equation_of_time_minutes + $longitude_correction_minutes;
+        
+        // Convert correction to seconds and round to nearest integer
+        $correction_seconds = (int)round($total_correction_minutes * 60);
+        
+        // Apply correction to UTC timestamp - получаем целое число
+        $solar_timestamp = $utc_timestamp + $correction_seconds;
+        
+        // Get date components from corrected timestamp
+        $solar_time = getdate($solar_timestamp);
+        
+        return array(
+            'year' => $solar_time['year'],
+            'month' => $solar_time['mon'],
+            'day' => $solar_time['mday'],
+            'hour' => $solar_time['hours'],
+            'minute' => $solar_time['minutes'],
+            'display' => sprintf('%04d-%02d-%02d %02d:%02d', 
+                $solar_time['year'], $solar_time['mon'], $solar_time['mday'],
+                $solar_time['hours'], $solar_time['minutes']
+            ),
+            'used_longitude' => $longitude,
+            'longitude_source' => $longitude_source
+        );
+    }
+    
+    /**
+     * Calculate solar longitude (simplified calculation)
+     */
+    private function calculate_solar_longitude($year, $month, $day, $hour, $minute) {
+        // Calculate Julian Day Number (simplified)
+        $a = floor((14 - $month) / 12);
+        $y = $year + 4800 - $a;
+        $m = $month + 12 * $a - 3;
+        
+        $jd = $day + floor((153 * $m + 2) / 5) + 365 * $y + floor($y / 4) - floor($y / 100) + floor($y / 400) - 32045;
+        
+        // Add fractional day
+        $jd += ($hour - 12) / 24 + $minute / 1440;
+        
+        // Calculate days since J2000.0
+        $d = $jd - 2451545.0;
+        
+        // Mean anomaly (degrees)
+        $g = 357.529 + 0.98560028 * $d;
+        $g = fmod($g, 360);
+        if ($g < 0) $g += 360;
+        
+        // Equation of center
+        $c = 1.914 * sin(deg2rad($g)) + 0.020 * sin(deg2rad(2 * $g));
+        
+        // True longitude
+        $L = 280.459 + 0.98564736 * $d;
+        $L = fmod($L + $c, 360);
+        if ($L < 0) $L += 360;
+        
+        // Adjust to Chinese system (0° at 315°)
+        $chinese_longitude = $L + 45;
+        $chinese_longitude = fmod($chinese_longitude, 360);
+        if ($chinese_longitude < 0) $chinese_longitude += 360;
+        
+        return $chinese_longitude;
+    }
+    
+    /**
+     * Get zodiac month by solar longitude
+     */
+    private function get_zodiac_month_by_longitude($longitude) {
+        if ($longitude >= 285 && $longitude < 315) return 1;   // Rat
+        if ($longitude >= 315 && $longitude < 345) return 2;   // Ox
+        if ($longitude >= 345 || $longitude < 15) return 3;    // Tiger
+        if ($longitude >= 15 && $longitude < 45) return 4;     // Rabbit
+        if ($longitude >= 45 && $longitude < 75) return 5;     // Dragon
+        if ($longitude >= 75 && $longitude < 105) return 6;    // Snake
+        if ($longitude >= 105 && $longitude < 135) return 7;   // Horse
+        if ($longitude >= 135 && $longitude < 165) return 8;   // Goat
+        if ($longitude >= 165 && $longitude < 195) return 9;   // Monkey
+        if ($longitude >= 195 && $longitude < 225) return 10;  // Rooster
+        if ($longitude >= 225 && $longitude < 255) return 11;  // Dog
+        return 12; // Pig (255-285)
     }
     
     // CORRECTED Four Pillars Calculation Methods
@@ -459,8 +621,8 @@ class MasterTsaiBaziCalculatorComplete {
         return $this->heavenly_stems[$year_stem_index] . ' ' . $this->earthly_branches[$year_branch_index];
     }
     
-    private function calculate_month_pillar($year, $month, $day, $year_pillar) {
-        $zodiac_month_index = $this->get_zodiac_month_by_date($month, $day);
+    private function calculate_month_pillar_by_longitude($year, $solar_longitude, $year_pillar) {
+        $zodiac_month_index = $this->get_zodiac_month_by_longitude($solar_longitude);
         
         $year_stem_name = explode(' ', $year_pillar)[0];
         $tiger_index = $this->tiger_index_table[$year_stem_name];
@@ -557,7 +719,7 @@ class MasterTsaiBaziCalculatorComplete {
         return $this->heavenly_stems[$hour_stem_index] . ' ' . $this->earthly_branches[$hour_branch];
     }
     
-    // Complete Luck Cycles Calculation
+    // Complete Luck Cycles Calculation (10 cycles = 100 years)
     private function calculate_complete_luck_cycles($year_pillar, $month_pillar, $birth_year, $birth_month, $birth_day, $zodiac_month_index, $gender) {
         // 1. Determine cycle direction
         $year_stem_name = explode(' ', $year_pillar)[0];
@@ -609,13 +771,13 @@ class MasterTsaiBaziCalculatorComplete {
             $age_display .= ' 4 months';
         }
         
-        // 6. Build 8 cycles (80 years)
+        // 6. Build 10 cycles (100 years)
         $cycles = [];
         $current_age = $starting_age_years;
         $current_year = $birth_year + $starting_age_years;
         $current_index = $first_index;
         
-        for ($i = 1; $i <= 8; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             $cycles[] = [
                 'cycle' => $i,
                 'age' => $current_age,
