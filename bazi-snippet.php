@@ -1,10 +1,10 @@
 /**
  * Plugin Name: Master Tsai Bazi Calculator - Final Version
  * Description: Accurate Bazi calculator with precise astronomical calculations
- * Version: 20.0
- * Author: Master Tsai
+ * Version: 25.0
+ * Author: Web Diesel
  * License: GPL v2 or later
- * Text Domain: master-tsai-bazi
+ * Text Domain: web-diesel.com
  */
 
 defined('ABSPATH') or die('No direct access allowed!');
@@ -685,25 +685,57 @@ class MasterTsaiBaziCalculatorComplete {
         $birth_timestamp = strtotime("$birth_year-$birth_month-$birth_day");
         
         if ($is_forward) {
-            // Count days forward to next occurrence of this solar term
+            // Для вперед: считаем дни до следующего термина в этом же году
             $term_timestamp = strtotime("$birth_year-$term_month-$term_day");
             
-            // If term already passed this year, get next year's term
+            // Если термин уже прошел в этом году, берем следующий год
             if ($term_timestamp <= $birth_timestamp) {
                 $term_timestamp = strtotime(($birth_year + 1) . "-$term_month-$term_day");
             }
             
             $days = ($term_timestamp - $birth_timestamp) / (60 * 60 * 24);
         } else {
-            // Count days backward to current solar term
+            // Для назад: считаем дни ДО ТЕКУЩЕГО ТЕРМИНА В ЭТОМ ЖЕ ГОДУ
+            // То есть до термина, который уже наступил в этом году и начал текущий месяц
             $term_timestamp = strtotime("$birth_year-$term_month-$term_day");
             
-            // If term hasn't occurred yet, get previous year's term
-            if ($term_timestamp > $birth_timestamp) {
-                $term_timestamp = strtotime(($birth_year - 1) . "-$term_month-$term_day");
+            // Если термин еще не наступил в этом году, берем ПРЕДЫДУЩИЙ ТЕРМИН ЭТОГО ЖЕ ТИПА
+            // Но в текущем году! Нужно найти предыдущий месяц по солнечному календарю
+            
+            // Определяем индекс предыдущего месяца
+            $prev_month_index = $zodiac_month_index - 1;
+            if ($prev_month_index < 1) {
+                $prev_month_index = 12;
             }
             
-            $days = ($birth_timestamp - $term_timestamp) / (60 * 60 * 24);
+            // Берем термин предыдущего месяца
+            $prev_term = $this->zodiac_month_terms[$prev_month_index];
+            $prev_term_month = $prev_term['month'];
+            $prev_term_day = $prev_term['day'];
+            $prev_term_name = $prev_term['name'];
+            
+            // Создаем timestamp для предыдущего термина В ТЕКУЩЕМ ГОДУ
+            $prev_term_timestamp = strtotime("$birth_year-$prev_term_month-$prev_term_day");
+            
+            // Если текущий термин уже прошел, используем его
+            // Если текущий термин еще не наступил, используем предыдущий термин
+            if ($term_timestamp <= $birth_timestamp) {
+                // Текущий термин уже прошел - используем его
+                $days = ($birth_timestamp - $term_timestamp) / (60 * 60 * 24);
+                $term_name = $term_name; // текущий термин
+            } else {
+                // Текущий термин еще не наступил - используем предыдущий
+                $days = ($birth_timestamp - $prev_term_timestamp) / (60 * 60 * 24);
+                $term_name = $prev_term_name; // предыдущий термин
+                
+                // Проверяем, не получилась ли отрицательная разница
+                // (если день рождения раньше предыдущего термина в этом году)
+                if ($days < 0) {
+                    // Тогда берем предыдущий термин из предыдущего года
+                    $prev_term_timestamp = strtotime(($birth_year - 1) . "-$prev_term_month-$prev_term_day");
+                    $days = ($birth_timestamp - $prev_term_timestamp) / (60 * 60 * 24);
+                }
+            }
         }
         
         return array(
