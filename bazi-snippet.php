@@ -1,7 +1,8 @@
+<?php
 /**
  * Plugin Name: Bazi Calculator
  * Description: Accurate Bazi calculator with precise astronomical calculations
- * Version: 21.6
+ * Version: 22.0
  * Author: Web Diesel
  * License: GPL v2 or later
  * Text Domain: web-diesel.com
@@ -71,19 +72,21 @@ class MasterTsaiBaziCalculatorComplete {
     );
     
     // Solar terms for zodiac month starts with improved accuracy
+    // Key = Zodiac Month Index, Value = Solar term that STARTS this zodiac month
+    // Rat month (1) starts at Daxue (255°), Ox (2) at Xiaohan (285°), Tiger (3) at Lichun (315°), etc.
     private $zodiac_month_terms = array(
-        1 => array('name' => 'Xiaohan', 'month' => 1, 'day' => 6, 'longitude' => 285),
-        2 => array('name' => 'Lichun', 'month' => 2, 'day' => 4, 'longitude' => 315),
-        3 => array('name' => 'Jingzhe', 'month' => 3, 'day' => 5, 'longitude' => 345),
-        4 => array('name' => 'Qingming', 'month' => 4, 'day' => 4, 'longitude' => 15),
-        5 => array('name' => 'Lixia', 'month' => 5, 'day' => 5, 'longitude' => 45),
-        6 => array('name' => 'Mangzhong', 'month' => 6, 'day' => 6, 'longitude' => 75),
-        7 => array('name' => 'Xiaoshu', 'month' => 7, 'day' => 7, 'longitude' => 105),
-        8 => array('name' => 'Liqiu', 'month' => 8, 'day' => 7, 'longitude' => 135),
-        9 => array('name' => 'Bailu', 'month' => 9, 'day' => 7, 'longitude' => 165),
-        10 => array('name' => 'Hanlu', 'month' => 10, 'day' => 8, 'longitude' => 195),
-        11 => array('name' => 'Lidong', 'month' => 11, 'day' => 7, 'longitude' => 225),
-        12 => array('name' => 'Daxue', 'month' => 12, 'day' => 7, 'longitude' => 255)
+        1 => array('name' => 'Daxue', 'month' => 12, 'day' => 7, 'longitude' => 255),      // Rat starts
+        2 => array('name' => 'Xiaohan', 'month' => 1, 'day' => 6, 'longitude' => 285),    // Ox starts
+        3 => array('name' => 'Lichun', 'month' => 2, 'day' => 4, 'longitude' => 315),     // Tiger starts
+        4 => array('name' => 'Jingzhe', 'month' => 3, 'day' => 6, 'longitude' => 345),    // Rabbit starts
+        5 => array('name' => 'Qingming', 'month' => 4, 'day' => 5, 'longitude' => 15),    // Dragon starts
+        6 => array('name' => 'Lixia', 'month' => 5, 'day' => 6, 'longitude' => 45),       // Snake starts
+        7 => array('name' => 'Mangzhong', 'month' => 6, 'day' => 6, 'longitude' => 75),   // Horse starts
+        8 => array('name' => 'Xiaoshu', 'month' => 7, 'day' => 7, 'longitude' => 105),    // Goat starts
+        9 => array('name' => 'Liqiu', 'month' => 8, 'day' => 8, 'longitude' => 135),      // Monkey starts
+        10 => array('name' => 'Bailu', 'month' => 9, 'day' => 8, 'longitude' => 165),     // Rooster starts
+        11 => array('name' => 'Hanlu', 'month' => 10, 'day' => 8, 'longitude' => 195),    // Dog starts
+        12 => array('name' => 'Lidong', 'month' => 11, 'day' => 7, 'longitude' => 225)    // Pig starts
     );
     
     public function __construct() {
@@ -167,9 +170,9 @@ class MasterTsaiBaziCalculatorComplete {
                         </div>
                         
                         <div class="form-group">
-                            <label for="longitude">Longitude (Optional, e.g., -118.24)</label>
+                            <label for="longitude">Longitude (for precise results)</label>
                             <input type="text" id="longitude" name="longitude" placeholder="e.g., -118.24 or 121.47" >
-                            <small>Decimal degrees. Positive for East, negative for West. If empty, uses timezone center longitude.</small>
+                            <small>For accurate results, enter your birthplace longitude. <a href="https://www.latlong.net/" target="_blank" rel="noopener">Find your coordinates here ↗</a>. Positive for East, negative for West. If empty, timezone center is used.</small>
                         </div>
                     </div>
                 </div>
@@ -564,35 +567,38 @@ class MasterTsaiBaziCalculatorComplete {
         // Equation of center
         $c = 1.914 * sin(deg2rad($g)) + 0.020 * sin(deg2rad(2 * $g));
         
-        // True longitude
+        // True longitude (ecliptic longitude of the Sun)
         $L = 280.459 + 0.98564736 * $d;
         $L = fmod($L + $c, 360);
         if ($L < 0) $L += 360;
         
-        // Adjust to Chinese system (0° at 315°)
-        $chinese_longitude = $L + 45;
-        $chinese_longitude = fmod($chinese_longitude, 360);
-        if ($chinese_longitude < 0) $chinese_longitude += 360;
-        
-        return $chinese_longitude;
+        // Return the standard ecliptic longitude directly
+        // Chinese zodiac months are based on standard solar longitude:
+        // Rat: 255°-285°, Ox: 285°-315°, Tiger: 315°-345°, etc.
+        return $L;
     }
     
     /**
      * Get zodiac month by solar longitude
+     * According to Master Tsai model:
+     * Rat: 255° ~ 284.99°, Ox: 285° ~ 314.99°, Tiger: 315° ~ 344.99°
+     * Rabbit: 345° ~ 14.99°, Dragon: 15° ~ 44.99°, Snake: 45° ~ 74.99°
+     * Horse: 75° ~ 104.99°, Goat: 105° ~ 134.99°, Monkey: 135° ~ 164.99°
+     * Rooster: 165° ~ 194.99°, Dog: 195° ~ 224.99°, Pig: 225° ~ 254.99°
      */
     private function get_zodiac_month_by_longitude($longitude) {
-        if ($longitude >= 285 && $longitude < 315) return 1;   // Rat
-        if ($longitude >= 315 && $longitude < 345) return 2;   // Ox
-        if ($longitude >= 345 || $longitude < 15) return 3;    // Tiger
-        if ($longitude >= 15 && $longitude < 45) return 4;     // Rabbit
-        if ($longitude >= 45 && $longitude < 75) return 5;     // Dragon
-        if ($longitude >= 75 && $longitude < 105) return 6;    // Snake
-        if ($longitude >= 105 && $longitude < 135) return 7;   // Horse
-        if ($longitude >= 135 && $longitude < 165) return 8;   // Goat
-        if ($longitude >= 165 && $longitude < 195) return 9;   // Monkey
-        if ($longitude >= 195 && $longitude < 225) return 10;  // Rooster
-        if ($longitude >= 225 && $longitude < 255) return 11;  // Dog
-        return 12; // Pig (255-285)
+        if ($longitude >= 255 && $longitude < 285) return 1;   // Rat
+        if ($longitude >= 285 && $longitude < 315) return 2;   // Ox
+        if ($longitude >= 315 && $longitude < 345) return 3;   // Tiger
+        if ($longitude >= 345 || $longitude < 15) return 4;    // Rabbit
+        if ($longitude >= 15 && $longitude < 45) return 5;     // Dragon
+        if ($longitude >= 45 && $longitude < 75) return 6;     // Snake
+        if ($longitude >= 75 && $longitude < 105) return 7;    // Horse
+        if ($longitude >= 105 && $longitude < 135) return 8;   // Goat
+        if ($longitude >= 135 && $longitude < 165) return 9;   // Monkey
+        if ($longitude >= 165 && $longitude < 195) return 10;  // Rooster
+        if ($longitude >= 195 && $longitude < 225) return 11;  // Dog
+        return 12; // Pig (225-255)
     }
     
     // CORRECTED Four Pillars Calculation Methods
@@ -624,19 +630,22 @@ class MasterTsaiBaziCalculatorComplete {
     private function calculate_month_pillar_by_longitude($year, $solar_longitude, $year_pillar) {
         $zodiac_month_index = $this->get_zodiac_month_by_longitude($solar_longitude);
         
+        // Get Year Stem Index (1-10)
         $year_stem_name = explode(' ', $year_pillar)[0];
-        $tiger_index = $this->tiger_index_table[$year_stem_name];
+        $year_stem_index = array_search($year_stem_name, $this->heavenly_stems);
         
-        // Formula: Month Stem Index = Zodiac Month Index - 3 + Tiger Index Number
-        $month_stem_index = $zodiac_month_index - 3 + $tiger_index;
+        // Master Tsai Formula:
+        // Standard: Month Stem = ((Year Stem × 2 − 1) + (Zodiac Month − 1)) mod 10
+        // Special Case (Rat=1 or Ox=2): add +12 before mod 10
         
-        // Adjust if result < 1
-        if ($month_stem_index < 1) {
-            $month_stem_index += 10;
+        $base = ($year_stem_index * 2 - 1) + ($zodiac_month_index - 1);
+        
+        // For Rat (1) and Ox (2) months, add 12
+        if ($zodiac_month_index == 1 || $zodiac_month_index == 2) {
+            $base += 12;
         }
         
-        // If > 10, take modulo 10
-        $month_stem_index = $month_stem_index % 10;
+        $month_stem_index = $base % 10;
         if ($month_stem_index == 0) {
             $month_stem_index = 10;
         }
@@ -662,10 +671,25 @@ class MasterTsaiBaziCalculatorComplete {
     }
     
     private function calculate_day_pillar($year, $month, $day) {
+        // Master Tsai formula for Day Pillar calculation
+        // Reference point: 1900-01-01 = Yang-Wood Dog (index 11)
+        
+        // Calculate total days from 1900-01-01 to birthdate
         $total_days = ($year - 1900) * 365;
-        $leap_year_count = floor(($year - 1901) / 4);
+        
+        // Count leap years between 1900 and birth year
+        // 1900 is NOT a leap year (divisible by 100 but not 400)
+        // So we count from 1901 onwards
+        if ($year > 1900) {
+            // Count leap years from 1901 to (year-1)
+            $leap_year_count = floor(($year - 1) / 4) - floor(($year - 1) / 100) + floor(($year - 1) / 400);
+            $leap_year_count -= floor(1899 / 4) - floor(1899 / 100) + floor(1899 / 400);
+        } else {
+            $leap_year_count = 0;
+        }
         $total_days += $leap_year_count;
         
+        // Add days in current year up to birthdate
         $month_days = array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
         if ($this->is_leap_year($year)) {
             $month_days[1] = 29;
@@ -835,73 +859,65 @@ class MasterTsaiBaziCalculatorComplete {
     }
     
     private function calculate_days_to_solar_term($birth_year, $birth_month, $birth_day, $zodiac_month_index, $is_forward) {
-        if (!isset($this->zodiac_month_terms[$zodiac_month_index])) {
-            return array('days' => 0, 'term' => 'Unknown');
-        }
+        // Current zodiac month term (the term that STARTED the current zodiac month)
+        $current_term = $this->zodiac_month_terms[$zodiac_month_index];
+        $current_term_month = $current_term['month'];
+        $current_term_day = $current_term['day'];
+        $current_term_name = $current_term['name'];
         
-        $term = $this->zodiac_month_terms[$zodiac_month_index];
-        $term_month = $term['month'];
-        $term_day = $term['day'];
-        $term_name = $term['name'];
+        // Next zodiac month term (the term that ENDS the current zodiac month)
+        $next_month_index = $zodiac_month_index + 1;
+        if ($next_month_index > 12) $next_month_index = 1;
+        $next_term = $this->zodiac_month_terms[$next_month_index];
+        $next_term_month = $next_term['month'];
+        $next_term_day = $next_term['day'];
+        $next_term_name = $next_term['name'];
         
         $birth_timestamp = strtotime("$birth_year-$birth_month-$birth_day");
         
         if ($is_forward) {
-            // Для вперед: считаем дни до следующего термина в этом же году
-            $term_timestamp = strtotime("$birth_year-$term_month-$term_day");
+            // Forward (Yang Male / Yin Female): count days TO the NEXT solar term
+            // The next solar term is the one that ENDS the current zodiac month
             
-            // Если термин уже прошел в этом году, берем следующий год
-            if ($term_timestamp <= $birth_timestamp) {
-                $term_timestamp = strtotime(($birth_year + 1) . "-$term_month-$term_day");
+            // Find the next term date
+            $next_term_year = $birth_year;
+            
+            // Handle year boundary: if next term is in earlier calendar month,
+            // it means we need next calendar year
+            if ($next_term_month < $birth_month || 
+                ($next_term_month == $birth_month && $next_term_day <= $birth_day)) {
+                $next_term_year = $birth_year + 1;
             }
             
-            $days = ($term_timestamp - $birth_timestamp) / (60 * 60 * 24);
+            $next_term_timestamp = strtotime("$next_term_year-$next_term_month-$next_term_day");
+            
+            // Calculate days forward to next term
+            $days = ($next_term_timestamp - $birth_timestamp) / (60 * 60 * 24);
+            $term_name = $next_term_name;
+            
         } else {
-            // Для назад: считаем дни ДО ТЕКУЩЕГО ТЕРМИНА В ЭТОМ ЖЕ ГОДУ
-            // То есть до термина, который уже наступил в этом году и начал текущий месяц
-            $term_timestamp = strtotime("$birth_year-$term_month-$term_day");
+            // Backward (Yang Female / Yin Male): count days FROM the CURRENT solar term
+            // The current solar term is the one that STARTED the current zodiac month
             
-            // Если термин еще не наступил в этом году, берем ПРЕДЫДУЩИЙ ТЕРМИН ЭТОГО ЖЕ ТИПА
-            // Но в текущем году! Нужно найти предыдущий месяц по солнечному календарю
+            // Find the current term date (the term that already passed and started this month)
+            $current_term_year = $birth_year;
             
-            // Определяем индекс предыдущего месяца
-            $prev_month_index = $zodiac_month_index - 1;
-            if ($prev_month_index < 1) {
-                $prev_month_index = 12;
+            // Handle year boundary: if current term is in later calendar month,
+            // it means the term was in the previous calendar year
+            if ($current_term_month > $birth_month || 
+                ($current_term_month == $birth_month && $current_term_day > $birth_day)) {
+                $current_term_year = $birth_year - 1;
             }
             
-            // Берем термин предыдущего месяца
-            $prev_term = $this->zodiac_month_terms[$prev_month_index];
-            $prev_term_month = $prev_term['month'];
-            $prev_term_day = $prev_term['day'];
-            $prev_term_name = $prev_term['name'];
+            $current_term_timestamp = strtotime("$current_term_year-$current_term_month-$current_term_day");
             
-            // Создаем timestamp для предыдущего термина В ТЕКУЩЕМ ГОДУ
-            $prev_term_timestamp = strtotime("$birth_year-$prev_term_month-$prev_term_day");
-            
-            // Если текущий термин уже прошел, используем его
-            // Если текущий термин еще не наступил, используем предыдущий термин
-            if ($term_timestamp <= $birth_timestamp) {
-                // Текущий термин уже прошел - используем его
-                $days = ($birth_timestamp - $term_timestamp) / (60 * 60 * 24);
-                $term_name = $term_name; // текущий термин
-            } else {
-                // Текущий термин еще не наступил - используем предыдущий
-                $days = ($birth_timestamp - $prev_term_timestamp) / (60 * 60 * 24);
-                $term_name = $prev_term_name; // предыдущий термин
-                
-                // Проверяем, не получилась ли отрицательная разница
-                // (если день рождения раньше предыдущего термина в этом году)
-                if ($days < 0) {
-                    // Тогда берем предыдущий термин из предыдущего года
-                    $prev_term_timestamp = strtotime(($birth_year - 1) . "-$prev_term_month-$prev_term_day");
-                    $days = ($birth_timestamp - $prev_term_timestamp) / (60 * 60 * 24);
-                }
-            }
+            // Calculate days backward from birth to the term that started current zodiac month
+            $days = ($birth_timestamp - $current_term_timestamp) / (60 * 60 * 24);
+            $term_name = $current_term_name;
         }
         
         return array(
-            'days' => round($days),
+            'days' => round(abs($days)),
             'term' => $term_name
         );
     }
