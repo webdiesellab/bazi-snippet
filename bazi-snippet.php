@@ -281,9 +281,16 @@ class MasterTsaiBaziCalculatorComplete {
         .personal-info { background: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
         .personal-info p { margin: 5px 0; }
         .pillars-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
-        .pillar { border: 2px solid #4CAF50; border-radius: 5px; padding: 15px; text-align: center; }
-        .pillar-label { font-size: 14px; color: #666; margin-bottom: 5px; }
-        .pillar-value { font-size: 16px; font-weight: bold; color: #2c3e50; }
+        .pillar { border-radius: 10px; padding: 20px 15px; text-align: center; color: white; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .pillar-label { font-size: 13px; color: rgba(255,255,255,0.9); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .pillar-animal { width: 200px; height: 200px; margin: 0 auto 10px; object-fit: contain; }
+        .pillar-value { font-size: 15px; font-weight: bold; color: white; }
+        /* Element Colors - Darker for better contrast */
+        .pillar.element-wood { background: linear-gradient(135deg, #1B5E20, #2E7D32); }
+        .pillar.element-fire { background: linear-gradient(135deg, #B71C1C, #C62828); }
+        .pillar.element-earth { background: linear-gradient(135deg, #5D4037, #6D4C41); }
+        .pillar.element-metal { background: linear-gradient(135deg, #37474F, #455A64); }
+        .pillar.element-water { background: linear-gradient(135deg, #0D47A1, #1565C0); }
         .luck-cycles-section { margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 5px; }
         .luck-cycles-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .cycles-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
@@ -339,6 +346,104 @@ class MasterTsaiBaziCalculatorComplete {
                 });
             });
             
+            // Element emojis mapping
+            var elementEmojis = {
+                'Wood': '🌲',
+                'Fire': '🔥',
+                'Earth': '🏔️',
+                'Metal': '⚙️',
+                'Water': '💧'
+            };
+            
+            // Animal emojis mapping
+            var animalEmojis = {
+                'Rat': '🐀',
+                'Ox': '🐂',
+                'Tiger': '🐅',
+                'Rabbit': '🐇',
+                'Dragon': '🐉',
+                'Snake': '🐍',
+                'Horse': '🐴',
+                'Goat': '🐐',
+                'Monkey': '🐒',
+                'Rooster': '🐓',
+                'Dog': '🐕',
+                'Pig': '🐖'
+            };
+            
+            function getEmojisForPillar(pillar) {
+                var elementEmoji = '';
+                var animalEmoji = '';
+                
+                // Find element
+                for (var element in elementEmojis) {
+                    if (pillar.indexOf(element) !== -1) {
+                        elementEmoji = elementEmojis[element];
+                        break;
+                    }
+                }
+                
+                // Find animal
+                for (var animal in animalEmojis) {
+                    if (pillar.indexOf(animal) !== -1) {
+                        animalEmoji = animalEmojis[animal];
+                        break;
+                    }
+                }
+                
+                return elementEmoji + animalEmoji;
+            }
+            
+            // Animal images mapping
+            var animalImages = {
+                'Rat': 'https://zodipet.com/wp-content/uploads/2025/12/rat-687x1024.png',
+                'Ox': 'https://zodipet.com/wp-content/uploads/2025/12/ox.png',
+                'Tiger': 'https://zodipet.com/wp-content/uploads/2025/12/tiger2.png',
+                'Rabbit': 'https://zodipet.com/wp-content/uploads/2025/12/rabbit-687x1024.png',
+                'Dragon': 'https://zodipet.com/wp-content/uploads/2025/12/dragon-687x1024.png',
+                'Snake': 'https://zodipet.com/wp-content/uploads/2025/12/snake-687x1024.png',
+                'Horse': 'https://zodipet.com/wp-content/uploads/2025/12/horse-687x1024.png',
+                'Goat': 'https://zodipet.com/wp-content/uploads/2025/12/goat-687x1024.png',
+                'Monkey': 'https://zodipet.com/wp-content/uploads/2025/12/monkey3-687x1024.png',
+                'Rooster': 'https://zodipet.com/wp-content/uploads/2025/12/Rooster2-687x1024.png',
+                'Dog': 'https://zodipet.com/wp-content/uploads/2025/12/dog2-687x1024.png',
+                'Pig': 'https://zodipet.com/wp-content/uploads/2025/12/pig-687x1024.png'
+            };
+            
+            function getElementClass(pillar) {
+                if (pillar.indexOf('Wood') !== -1) return 'element-wood';
+                if (pillar.indexOf('Fire') !== -1) return 'element-fire';
+                if (pillar.indexOf('Earth') !== -1) return 'element-earth';
+                if (pillar.indexOf('Metal') !== -1) return 'element-metal';
+                if (pillar.indexOf('Water') !== -1) return 'element-water';
+                return '';
+            }
+            
+            function getAnimalFromPillar(pillar) {
+                var parts = pillar.split(' ');
+                return parts.length > 1 ? parts[1] : '';
+            }
+            
+            function updatePillar(elementId, pillarValue) {
+                var $pillar = $('#' + elementId).closest('.pillar');
+                var animal = getAnimalFromPillar(pillarValue);
+                var elementClass = getElementClass(pillarValue);
+                
+                // Remove old element classes and add new one
+                $pillar.removeClass('element-wood element-fire element-earth element-metal element-water').addClass(elementClass);
+                
+                // Update animal image
+                var $img = $pillar.find('.pillar-animal');
+                if ($img.length === 0) {
+                    $img = $('<img class="pillar-animal" alt="">');
+                    $pillar.find('.pillar-label').after($img);
+                }
+                $img.attr('src', animalImages[animal] || '');
+                
+                // Update text
+                $('#' + elementId).text(pillarValue);
+            }
+            
             function displayBaziResults(data) {
                 $('#result-birthdate').text(data.birth_date);
                 $('#result-gender').text(data.gender);
@@ -348,10 +453,10 @@ class MasterTsaiBaziCalculatorComplete {
                 $('#result-solar-longitude').text(data.solar_longitude.toFixed(2));
                 $('#result-zodiac-month').text(data.zodiac_month);
                 
-                $('#year-pillar').text(data.year_pillar);
-                $('#month-pillar').text(data.month_pillar);
-                $('#day-pillar').text(data.day_pillar);
-                $('#hour-pillar').text(data.hour_pillar);
+                updatePillar('year-pillar', data.year_pillar);
+                updatePillar('month-pillar', data.month_pillar);
+                updatePillar('day-pillar', data.day_pillar);
+                updatePillar('hour-pillar', data.hour_pillar);
                 
                 $('#cycle-direction').text(data.cycle_direction);
                 $('#first-cycle-age').text(data.first_cycle_age);
@@ -361,11 +466,12 @@ class MasterTsaiBaziCalculatorComplete {
                 $('#luck-cycles-body').empty();
                 if (data.luck_cycles && data.luck_cycles.length > 0) {
                     $.each(data.luck_cycles, function(index, cycle) {
+                        var emojis = getEmojisForPillar(cycle.pillar);
                         var row = $('<tr>');
                         row.append($('<td>').text('Cycle ' + cycle.cycle));
                         row.append($('<td>').text(cycle.age + ' years'));
                         row.append($('<td>').text(cycle.year));
-                        row.append($('<td>').text(cycle.pillar));
+                        row.append($('<td>').text(cycle.pillar + ' ' + emojis));
                         $('#luck-cycles-body').append(row);
                     });
                 }
