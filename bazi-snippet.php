@@ -285,6 +285,7 @@ class MasterTsaiBaziCalculatorComplete {
         .pillar-label { font-size: 13px; color: rgba(255,255,255,0.9); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
         .pillar-animal { width: 200px; height: 200px; margin: 0 auto 10px; object-fit: contain; }
         .pillar-value { font-size: 15px; font-weight: bold; color: white; }
+        .pillar-chinese { font-size: 28px; color: #f6daae; margin-top: 8px; letter-spacing: 5px; }
         /* Element Colors - Darker for better contrast */
         .pillar.element-wood { background: linear-gradient(135deg, #1B5E20, #2E7D32); }
         .pillar.element-fire { background: linear-gradient(135deg, #B71C1C, #C62828); }
@@ -371,6 +372,31 @@ class MasterTsaiBaziCalculatorComplete {
                 'Pig': '🐖'
             };
             
+            // Chinese characters for elements
+            var elementChars = {
+                'Wood': '木',
+                'Fire': '火',
+                'Earth': '土',
+                'Metal': '金',
+                'Water': '水'
+            };
+            
+            // Chinese characters for animals (Earthly Branches)
+            var animalChars = {
+                'Rat': '子',
+                'Ox': '丑',
+                'Tiger': '寅',
+                'Rabbit': '卯',
+                'Dragon': '辰',
+                'Snake': '巳',
+                'Horse': '午',
+                'Goat': '未',
+                'Monkey': '申',
+                'Rooster': '酉',
+                'Dog': '戌',
+                'Pig': '亥'
+            };
+            
             function getEmojisForPillar(pillar) {
                 var elementEmoji = '';
                 var animalEmoji = '';
@@ -392,6 +418,29 @@ class MasterTsaiBaziCalculatorComplete {
                 }
                 
                 return elementEmoji + animalEmoji;
+            }
+            
+            function getChineseCharsForPillar(pillar) {
+                var elementChar = '';
+                var animalChar = '';
+                
+                // Find element character
+                for (var element in elementChars) {
+                    if (pillar.indexOf(element) !== -1) {
+                        elementChar = elementChars[element];
+                        break;
+                    }
+                }
+                
+                // Find animal character
+                for (var animal in animalChars) {
+                    if (pillar.indexOf(animal) !== -1) {
+                        animalChar = animalChars[animal];
+                        break;
+                    }
+                }
+                
+                return elementChar + animalChar;
             }
             
             // Animal images mapping
@@ -428,6 +477,7 @@ class MasterTsaiBaziCalculatorComplete {
                 var $pillar = $('#' + elementId).closest('.pillar');
                 var animal = getAnimalFromPillar(pillarValue);
                 var elementClass = getElementClass(pillarValue);
+                var chineseChars = getChineseCharsForPillar(pillarValue);
                 
                 // Remove old element classes and add new one
                 $pillar.removeClass('element-wood element-fire element-earth element-metal element-water').addClass(elementClass);
@@ -442,6 +492,14 @@ class MasterTsaiBaziCalculatorComplete {
                 
                 // Update text
                 $('#' + elementId).text(pillarValue);
+                
+                // Update Chinese characters
+                var $chars = $pillar.find('.pillar-chinese');
+                if ($chars.length === 0) {
+                    $chars = $('<div class="pillar-chinese">');
+                    $('#' + elementId).after($chars);
+                }
+                $chars.text(chineseChars);
             }
             
             function displayBaziResults(data) {
@@ -467,11 +525,12 @@ class MasterTsaiBaziCalculatorComplete {
                 if (data.luck_cycles && data.luck_cycles.length > 0) {
                     $.each(data.luck_cycles, function(index, cycle) {
                         var emojis = getEmojisForPillar(cycle.pillar);
+                        var chineseChars = getChineseCharsForPillar(cycle.pillar);
                         var row = $('<tr>');
                         row.append($('<td>').text('Cycle ' + cycle.cycle));
                         row.append($('<td>').text(cycle.age + ' years'));
                         row.append($('<td>').text(cycle.year));
-                        row.append($('<td>').text(cycle.pillar + ' ' + emojis));
+                        row.append($('<td>').text(cycle.pillar + ' ' + emojis + ' ' + chineseChars));
                         $('#luck-cycles-body').append(row);
                     });
                 }
