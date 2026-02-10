@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Bazi Calculator
  * Description: Accurate Bazi calculator with precise astronomical calculations
- * Version: 24.0
+ * Version: 25.0
  * Author: Web Diesel
  * License: GPL v2 or later
  * Text Domain: web-diesel.com
@@ -169,8 +169,12 @@ class MasterTsaiBaziCalculatorComplete {
                         
                         <div class="form-group">
                             <label for="longitude">Longitude (for precise results)</label>
-                            <input type="text" id="longitude" name="longitude" placeholder="e.g., -118.24 or 121.47" >
+                            <div class="longitude-input-group">
+                                <input type="text" id="longitude" name="longitude" placeholder="e.g., -118.24 or 121.47" >
+                                <button type="button" id="get-location-btn" class="location-btn" title="Get my current location">📍</button>
+                            </div>
                             <small>For accurate results, enter your birthplace longitude. <a href="https://www.latlong.net/" target="_blank" rel="noopener">Find your coordinates here ↗</a>. Positive for East, negative for West. If empty, timezone center is used.</small>
+                            <div id="location-status" class="location-status"></div>
                         </div>
                     </div>
                 </div>
@@ -302,6 +306,28 @@ class MasterTsaiBaziCalculatorComplete {
         .loading-spinner { border: 5px solid #f3f3f3; border-top: 5px solid #4CAF50; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .bazi-error { background: #ffebee; border: 1px solid #ef5350; color: #d32f2f; padding: 20px; border-radius: 5px; margin-top: 20px; text-align: center; }
+        
+        /* Geolocation styles */
+        .longitude-input-group { display: flex; gap: 8px; align-items: center; }
+        .longitude-input-group input { flex: 1; }
+        .location-btn { padding: 10px 15px; background: #f5f5f5; color: #333; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background 0.3s; }
+        .location-btn:hover { background: #e0e0e0; }
+        .location-btn:disabled { background: #f0f0f0; color: #999; cursor: not-allowed; }
+        .location-status { margin-top: 5px; font-size: 12px; }
+        .location-status.success { color: #4CAF50; }
+        .location-status.error { color: #f44336; }
+        .location-status.loading { color: #2196F3; }
+        
+        /* Print styles */
+        @media print {
+            .bazi-form, .form-section, .form-actions, .bazi-loading, .bazi-error, .verification-section { display: none !important; }
+            .bazi-results { display: block !important; box-shadow: none !important; }
+            .bazi-calculator-container { max-width: 100%; padding: 0; }
+            .pillars-grid { page-break-inside: avoid; }
+            .luck-cycles-section { page-break-inside: avoid; }
+            .pillar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            body { font-size: 12pt; }
+        }
         
         @media (max-width: 768px) {
             .bazi-calculator-container { padding: 15px; }
@@ -609,6 +635,184 @@ class MasterTsaiBaziCalculatorComplete {
                 
                 $('html, body').animate({
                     scrollTop: $('#bazi-results').offset().top - 20
+                }, 500);
+            }
+            
+            // ============================================
+            // AUTO-FILL FEATURES
+            // ============================================
+            
+            // 1. Auto-detect timezone from browser
+            function detectTimezone() {
+                try {
+                    var offset = -(new Date().getTimezoneOffset() / 60);
+                    // Round to nearest integer for GMT offset
+                    offset = Math.round(offset);
+                    // Clamp to valid range
+                    if (offset >= -12 && offset <= 14) {
+                        $('#timezone').val(offset);
+                    }
+                } catch(e) {
+                    console.log('Could not detect timezone:', e);
+                }
+            }
+            
+            // 2. Geolocation API
+            var longitudeFromGeo = false; // Flag to track if longitude was set by geolocation
+            
+            $('#get-location-btn').on('click', function() {
+                var $btn = $(this);
+                var $status = $('#location-status');
+                
+                if (!navigator.geolocation) {
+                    $status.removeClass('success loading').addClass('error')
+                           .text('Geolocation is not supported by your browser');
+                    return;
+                }
+                
+                $btn.prop('disabled', true);
+                $status.removeClass('success error').addClass('loading')
+                       .text('Getting your location...');
+                
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        var lon = position.coords.longitude.toFixed(4);
+                        $('#longitude').val(lon);
+                        
+                        // Also update timezone based on longitude (rough estimate)
+                        var estimatedTz = Math.round(position.coords.longitude / 15);
+                        if (estimatedTz >= -12 && estimatedTz <= 14) {
+                            $('#timezone').val(estimatedTz);
+                        }
+                        
+                        // Mark that longitude was set by geolocation
+                        longitudeFromGeo = true;
+                        
+                        $btn.prop('disabled', false);
+                        $status.removeClass('loading error').addClass('success')
+                               .text('Location detected: ' + lon + '° (Lat: ' + position.coords.latitude.toFixed(4) + '°)');
+                        
+                        // Save to localStorage
+                        saveFormData();
+                    },
+                    function(error) {
+                        $btn.prop('disabled', false);
+                        var errorMsg = 'Could not get location: ';
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMsg += 'Permission denied';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMsg += 'Position unavailable';
+                                break;
+                            case error.TIMEOUT:
+                                errorMsg += 'Request timeout';
+                                break;
+                            default:
+                                errorMsg += 'Unknown error';
+                        }
+                        $status.removeClass('success loading').addClass('error').text(errorMsg);
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            });
+            
+            // Clear longitude when timezone is changed manually
+            // (to avoid mismatch between timezone and geolocation-provided longitude)
+            $('#timezone').on('change', function() {
+                if (longitudeFromGeo && $('#longitude').val()) {
+                    $('#longitude').val('');
+                    $('#location-status').removeClass('success error loading')
+                        .addClass('error')
+                        .text('Longitude cleared - timezone changed. Use 📍 to get new location or leave empty.');
+                    longitudeFromGeo = false;
+                }
+            });
+            
+            // 3. localStorage persistence
+            var STORAGE_KEY = 'bazi_calculator_form_data';
+            
+            function saveFormData() {
+                var formData = {
+                    birth_year: $('#birth_year').val(),
+                    birth_month: $('#birth_month').val(),
+                    birth_day: $('#birth_day').val(),
+                    birth_hour: $('#birth_hour').val(),
+                    birth_minute: $('#birth_minute').val(),
+                    timezone: $('#timezone').val(),
+                    gender: $('#gender').val(),
+                    longitude: $('#longitude').val()
+                };
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+                } catch(e) {
+                    console.log('Could not save to localStorage:', e);
+                }
+            }
+            
+            function loadFormData() {
+                try {
+                    var saved = localStorage.getItem(STORAGE_KEY);
+                    if (saved) {
+                        var data = JSON.parse(saved);
+                        if (data.birth_year) $('#birth_year').val(data.birth_year);
+                        if (data.birth_month) $('#birth_month').val(data.birth_month);
+                        if (data.birth_day) $('#birth_day').val(data.birth_day);
+                        if (data.birth_hour) $('#birth_hour').val(data.birth_hour);
+                        if (data.birth_minute) $('#birth_minute').val(data.birth_minute);
+                        if (data.timezone) $('#timezone').val(data.timezone);
+                        if (data.gender) $('#gender').val(data.gender);
+                        if (data.longitude) $('#longitude').val(data.longitude);
+                        return true; // Data was loaded
+                    }
+                } catch(e) {
+                    console.log('Could not load from localStorage:', e);
+                }
+                return false;
+            }
+            
+            // Save on form input changes
+            $('#bazi-form input, #bazi-form select').on('change', function() {
+                saveFormData();
+            });
+            
+            // 4. Load from URL parameters (for shared links)
+            function loadFromUrl() {
+                var params = new URLSearchParams(window.location.search);
+                var hasParams = false;
+                
+                if (params.has('year')) { $('#birth_year').val(params.get('year')); hasParams = true; }
+                if (params.has('month')) { $('#birth_month').val(params.get('month')); hasParams = true; }
+                if (params.has('day')) { $('#birth_day').val(params.get('day')); hasParams = true; }
+                if (params.has('hour')) { $('#birth_hour').val(params.get('hour')); hasParams = true; }
+                if (params.has('minute')) { $('#birth_minute').val(params.get('minute')); hasParams = true; }
+                if (params.has('tz')) { $('#timezone').val(params.get('tz')); hasParams = true; }
+                if (params.has('gender')) { $('#gender').val(params.get('gender')); hasParams = true; }
+                if (params.has('lon')) { $('#longitude').val(params.get('lon')); hasParams = true; }
+                
+                return hasParams;
+            }
+            
+            // ============================================
+            // INITIALIZATION
+            // ============================================
+            
+            // On page load: priority order
+            // 1. URL parameters (shared link)
+            // 2. localStorage (previous session)
+            // 3. Auto-detect timezone
+            
+            var loadedFromUrl = loadFromUrl();
+            if (!loadedFromUrl) {
+                var loadedFromStorage = loadFormData();
+                if (!loadedFromStorage) {
+                    // Only auto-detect timezone if no saved data
+                    detectTimezone();
+                }
+            } else {
+                // Auto-calculate if loaded from shared link
+                setTimeout(function() {
+                    $('#bazi-form').submit();
                 }, 500);
             }
         });
