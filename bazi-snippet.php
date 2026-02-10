@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Bazi Calculator
  * Description: Accurate Bazi calculator with precise astronomical calculations
- * Version: 22.0
+ * Version: 23.1
  * Author: Web Diesel
  * License: GPL v2 or later
  * Text Domain: web-diesel.com
@@ -104,11 +104,6 @@ class MasterTsaiBaziCalculatorComplete {
         ob_start();
         ?>
         <div class="bazi-calculator-container">
-            <div class="bazi-header">
-                <h1>Bazi Calculator</h1>
-                <p class="bazi-subtitle">Complete and accurate Bazi calculator with solar time correction</p>
-                <p class="bazi-version"></p>
-            </div>
             
             <form id="bazi-form" class="bazi-form">
                 <div class="form-section">
@@ -185,7 +180,7 @@ class MasterTsaiBaziCalculatorComplete {
             
             <div id="bazi-results" class="bazi-results" style="display: none;">
                 <div class="results-header">
-                    <h3>Your Bazi Chart Results</h3>
+                    <h3>YOUR BAZI CHART RESULTS</h3>
                 </div>
                 
                 <div class="personal-info">
@@ -199,7 +194,7 @@ class MasterTsaiBaziCalculatorComplete {
                 </div>
                 
                 <div class="four-pillars">
-                    <h4>Four Pillars of Destiny</h4>
+                    <h4>FOUR PILLARS OF DESTINY</h4>
                     <div class="pillars-grid">
                         <div class="pillar">
                             <div class="pillar-label">Year Pillar</div>
@@ -221,7 +216,7 @@ class MasterTsaiBaziCalculatorComplete {
                 </div>
                 
                 <div class="luck-cycles-section">
-                    <h4>Ten-Year Major Luck Cycles</h4>
+                    <h4>TEN-YEAR MAJOR LUCK CYCLES</h4>
                     <div class="luck-cycles-info">
                         <p><strong>Direction:</strong> <span id="cycle-direction"></span></p>
                         <p><strong>First Cycle Starts at Age:</strong> <span id="first-cycle-age"></span></p>
@@ -306,12 +301,47 @@ class MasterTsaiBaziCalculatorComplete {
         .bazi-error { background: #ffebee; border: 1px solid #ef5350; color: #d32f2f; padding: 20px; border-radius: 5px; margin-top: 20px; text-align: center; }
         
         @media (max-width: 768px) {
-            .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+            .bazi-calculator-container { padding: 15px; }
+            .pillars-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .pillar { padding: 15px 10px; min-height: 220px; }
+            .pillar-animal { width: 120px; height: 120px; }
+            .pillar-value { font-size: 13px; }
+            .pillar-chinese { font-size: 22px; }
             .luck-cycles-info { grid-template-columns: 1fr; }
+            .cycles-table { font-size: 14px; }
+            .cycles-table th, .cycles-table td { padding: 8px 5px; }
+            .bazi-button { padding: 10px 20px; font-size: 14px; }
+        }
+        @media (max-width: 600px) {
+            .cycles-table-container { overflow-x: auto; }
+            .cycles-table { min-width: 400px; }
         }
         @media (max-width: 480px) {
-            .pillars-grid { grid-template-columns: 1fr; }
+            .bazi-calculator-container { padding: 10px; }
+            .bazi-header h1 { font-size: 24px; }
+            .pillars-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .pillar { padding: 12px 8px; min-height: 180px; }
+            .pillar-label { font-size: 11px; }
+            .pillar-animal { width: 80px; height: 80px; }
+            .pillar-value { font-size: 11px; }
+            .pillar-chinese { font-size: 18px; letter-spacing: 2px; }
             .form-row { grid-template-columns: 1fr; }
+            .form-section { padding: 15px; }
+            .form-actions { display: flex; flex-direction: column; gap: 12px; }
+            .bazi-button { margin: 0; width: 100%; padding: 16px 30px; font-size: 18px; font-weight: bold; }
+            .personal-info { padding: 10px; font-size: 14px; }
+            .luck-cycles-section { padding: 15px; }
+            .luck-cycles-section h4 { font-size: 16px; }
+            .verification-section { padding: 15px; }
+            .verify-button { padding: 14px 20px; font-size: 16px; width: 100%; text-align: center; box-sizing: border-box; }
+        }
+        @media (max-width: 360px) {
+            .pillars-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+            .pillar { padding: 10px 5px; min-height: 160px; }
+            .pillar-animal { width: 60px; height: 60px; }
+            .pillar-value { font-size: 10px; }
+            .pillar-chinese { font-size: 16px; }
+            .cycles-table { font-size: 12px; }
         }
         </style>
         
@@ -608,6 +638,7 @@ class MasterTsaiBaziCalculatorComplete {
                 $year_pillar, 
                 $month_pillar, 
                 $birth_year, $birth_month, $birth_day,
+                $birth_hour, $birth_minute,
                 $zodiac_month_index,
                 $gender
             );
@@ -909,7 +940,7 @@ class MasterTsaiBaziCalculatorComplete {
     }
     
     // Complete Luck Cycles Calculation (10 cycles = 100 years)
-    private function calculate_complete_luck_cycles($year_pillar, $month_pillar, $birth_year, $birth_month, $birth_day, $zodiac_month_index, $gender) {
+    private function calculate_complete_luck_cycles($year_pillar, $month_pillar, $birth_year, $birth_month, $birth_day, $birth_hour, $birth_minute, $zodiac_month_index, $gender) {
         // 1. Determine cycle direction
         $year_stem_name = explode(' ', $year_pillar)[0];
         $year_stem_index = array_search($year_stem_name, $this->heavenly_stems);
@@ -940,9 +971,9 @@ class MasterTsaiBaziCalculatorComplete {
             if ($first_index < 1) $first_index = 60;
         }
         
-        // 4. Calculate days to solar term
+        // 4. Calculate days to solar term (with birth time for precision)
         $days_info = $this->calculate_days_to_solar_term(
-            $birth_year, $birth_month, $birth_day,
+            $birth_year, $birth_month, $birth_day, $birth_hour, $birth_minute,
             $zodiac_month_index, $is_forward
         );
         
@@ -1023,12 +1054,13 @@ class MasterTsaiBaziCalculatorComplete {
         return 13; // Default: Yang-Fire Rat
     }
     
-    private function calculate_days_to_solar_term($birth_year, $birth_month, $birth_day, $zodiac_month_index, $is_forward) {
+    private function calculate_days_to_solar_term($birth_year, $birth_month, $birth_day, $birth_hour, $birth_minute, $zodiac_month_index, $is_forward) {
         // Current zodiac month term (the term that STARTED the current zodiac month)
         $current_term = $this->zodiac_month_terms[$zodiac_month_index];
         $current_term_month = $current_term['month'];
         $current_term_day = $current_term['day'];
         $current_term_name = $current_term['name'];
+        $current_term_longitude = $current_term['longitude'];
         
         // Next zodiac month term (the term that ENDS the current zodiac month)
         $next_month_index = $zodiac_month_index + 1;
@@ -1037,14 +1069,16 @@ class MasterTsaiBaziCalculatorComplete {
         $next_term_month = $next_term['month'];
         $next_term_day = $next_term['day'];
         $next_term_name = $next_term['name'];
+        $next_term_longitude = $next_term['longitude'];
         
-        $birth_timestamp = strtotime("$birth_year-$birth_month-$birth_day");
+        // Use birth time for precise calculation
+        $birth_timestamp = mktime($birth_hour, $birth_minute, 0, $birth_month, $birth_day, $birth_year);
         
         if ($is_forward) {
             // Forward (Yang Male / Yin Female): count days TO the NEXT solar term
             // The next solar term is the one that ENDS the current zodiac month
             
-            // Find the next term date
+            // Find the next term date with precise calculation
             $next_term_year = $birth_year;
             
             // Handle year boundary: if next term is in earlier calendar month,
@@ -1054,9 +1088,12 @@ class MasterTsaiBaziCalculatorComplete {
                 $next_term_year = $birth_year + 1;
             }
             
-            $next_term_timestamp = strtotime("$next_term_year-$next_term_month-$next_term_day");
+            // Calculate exact timestamp of the solar term for this specific year
+            $next_term_timestamp = $this->find_solar_term_exact(
+                $next_term_year, $next_term_longitude, $next_term_month, $next_term_day
+            );
             
-            // Calculate days forward to next term
+            // Calculate days (including fractional part) forward to next term
             $days = ($next_term_timestamp - $birth_timestamp) / (60 * 60 * 24);
             $term_name = $next_term_name;
             
@@ -1074,17 +1111,60 @@ class MasterTsaiBaziCalculatorComplete {
                 $current_term_year = $birth_year - 1;
             }
             
-            $current_term_timestamp = strtotime("$current_term_year-$current_term_month-$current_term_day");
+            // Calculate exact timestamp of the solar term for this specific year
+            $current_term_timestamp = $this->find_solar_term_exact(
+                $current_term_year, $current_term_longitude, $current_term_month, $current_term_day
+            );
             
             // Calculate days backward from birth to the term that started current zodiac month
             $days = ($birth_timestamp - $current_term_timestamp) / (60 * 60 * 24);
             $term_name = $current_term_name;
         }
         
+        // Use floor() for days - partial days don't count as full days
+        // This matches the reference calculator behavior
         return array(
-            'days' => round(abs($days)),
+            'days' => floor(abs($days)),
             'term' => $term_name
         );
+    }
+    
+    /**
+     * Calculate the exact timestamp when sun reaches a specific longitude
+     * Returns the precise timestamp (not just date) for accurate day calculation
+     */
+    private function find_solar_term_exact($year, $target_longitude, $approx_month, $approx_day) {
+        // Start with approximate date and search around it
+        $approx_timestamp = strtotime("$year-$approx_month-$approx_day 12:00:00");
+        
+        // Binary search within ±5 days of approximate date
+        $start_timestamp = $approx_timestamp - (5 * 86400);
+        $end_timestamp = $approx_timestamp + (5 * 86400);
+        
+        // Find when solar longitude crosses the target
+        while (($end_timestamp - $start_timestamp) > 60) { // Within 1 minute precision
+            $mid_timestamp = intval(($start_timestamp + $end_timestamp) / 2);
+            $mid_date = getdate($mid_timestamp);
+            
+            $longitude = $this->calculate_solar_longitude(
+                $mid_date['year'], $mid_date['mon'], $mid_date['mday'],
+                $mid_date['hours'], $mid_date['minutes']
+            );
+            
+            // Handle the 360° wraparound for Rabbit month (345° to 15°)
+            $diff = $longitude - $target_longitude;
+            if ($diff > 180) $diff -= 360;
+            if ($diff < -180) $diff += 360;
+            
+            if ($diff < 0) {
+                $start_timestamp = $mid_timestamp;
+            } else {
+                $end_timestamp = $mid_timestamp;
+            }
+        }
+        
+        // Return the exact timestamp when the solar term occurs
+        return $end_timestamp;
     }
     
     private function create_verification_url($year, $month, $day, $hour, $minute, $timezone, $gender) {
