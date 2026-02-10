@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Bazi Calculator
  * Description: Accurate Bazi calculator with precise astronomical calculations
- * Version: 23.1
+ * Version: 24.0
  * Author: Web Diesel
  * License: GPL v2 or later
  * Text Domain: web-diesel.com
@@ -88,6 +88,9 @@ class MasterTsaiBaziCalculatorComplete {
         11 => array('name' => 'Hanlu', 'month' => 10, 'day' => 8, 'longitude' => 195),    // Dog starts
         12 => array('name' => 'Lidong', 'month' => 11, 'day' => 7, 'longitude' => 225)    // Pig starts
     );
+    
+    // Cache for solar term timestamps (year_longitude => timestamp)
+    private $solar_term_cache = array();
     
     public function __construct() {
         add_shortcode('bazi_calculator', array($this, 'render_calculator'));
@@ -347,12 +350,29 @@ class MasterTsaiBaziCalculatorComplete {
         
         <script>
         jQuery(document).ready(function($) {
+            // Reset button handler - hide results
+            $('#bazi-form').on('reset', function() {
+                $('#bazi-results').hide();
+                $('#bazi-error').hide();
+            });
+            
             $('#bazi-form').on('submit', function(e) {
                 e.preventDefault();
                 
                 $('#bazi-loading').show();
                 $('#bazi-results').hide();
                 $('#bazi-error').hide();
+                
+                // Validate date before submitting
+                var year = parseInt($('#birth_year').val());
+                var month = parseInt($('#birth_month').val());
+                var day = parseInt($('#birth_day').val());
+                
+                if (!isValidDate(year, month, day)) {
+                    $('#bazi-loading').hide();
+                    $('#bazi-error').show().find('p').text('Invalid date: ' + year + '-' + month + '-' + day + ' does not exist. Please check the day for this month.');
+                    return;
+                }
                 
                 var formData = $(this).serialize() + '&action=calculate_bazi';
                 
@@ -376,6 +396,25 @@ class MasterTsaiBaziCalculatorComplete {
                     }
                 });
             });
+            
+            // Date validation function
+            function isValidDate(year, month, day) {
+                // Check basic ranges
+                if (year < 1900 || year > 2100) return false;
+                if (month < 1 || month > 12) return false;
+                if (day < 1 || day > 31) return false;
+                
+                // Days in each month
+                var daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+                
+                // Check leap year for February
+                if (month === 2) {
+                    var isLeap = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+                    daysInMonth[1] = isLeap ? 29 : 28;
+                }
+                
+                return day <= daysInMonth[month - 1];
+            }
             
             // Element emojis mapping
             var elementEmojis = {
@@ -1132,8 +1171,15 @@ class MasterTsaiBaziCalculatorComplete {
     /**
      * Calculate the exact timestamp when sun reaches a specific longitude
      * Returns the precise timestamp (not just date) for accurate day calculation
+     * Uses caching to avoid recalculating for the same year/longitude
      */
     private function find_solar_term_exact($year, $target_longitude, $approx_month, $approx_day) {
+        // Check cache first
+        $cache_key = $year . '_' . $target_longitude;
+        if (isset($this->solar_term_cache[$cache_key])) {
+            return $this->solar_term_cache[$cache_key];
+        }
+        
         // Start with approximate date and search around it
         $approx_timestamp = strtotime("$year-$approx_month-$approx_day 12:00:00");
         
@@ -1162,6 +1208,9 @@ class MasterTsaiBaziCalculatorComplete {
                 $end_timestamp = $mid_timestamp;
             }
         }
+        
+        // Cache the result
+        $this->solar_term_cache[$cache_key] = $end_timestamp;
         
         // Return the exact timestamp when the solar term occurs
         return $end_timestamp;
