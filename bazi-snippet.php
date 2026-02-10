@@ -247,6 +247,7 @@ class MasterTsaiBaziCalculatorComplete {
                     </div>
                 </div>
                 
+                <!-- HIDDEN IN PRODUCTION
                 <div class="verification-section">
                     <h4>Verify Your Results</h4>
                     <p>For comparison with the official calculator:</p>
@@ -254,6 +255,7 @@ class MasterTsaiBaziCalculatorComplete {
                         <a href="#" id="verification-url" target="_blank" class="verify-button">Verify Online at ChineseFortuneCalendar.com</a>
                     </div>
                 </div>
+                -->
             </div>
             
             <div id="bazi-loading" class="bazi-loading" style="display: none;">
