@@ -717,8 +717,22 @@ class MasterTsaiBaziCalculatorComplete {
                 );
             });
             
+            // When user manually enters longitude, update timezone accordingly
+            $('#longitude').on('change blur', function() {
+                var lonVal = parseFloat($(this).val());
+                if (!isNaN(lonVal) && lonVal >= -180 && lonVal <= 180) {
+                    var estimatedTz = Math.round(lonVal / 15);
+                    if (estimatedTz >= -12 && estimatedTz <= 14) {
+                        $('#timezone').val(estimatedTz);
+                    }
+                    longitudeFromGeo = true; // Treat manual entry same as geo - protect from timezone mismatch
+                    $('#location-status').removeClass('error loading').addClass('success')
+                        .text('Timezone adjusted to GMT' + (estimatedTz >= 0 ? '+' : '') + estimatedTz + ' based on longitude');
+                }
+            });
+            
             // Clear longitude when timezone is changed manually
-            // (to avoid mismatch between timezone and geolocation-provided longitude)
+            // (to avoid mismatch between longitude and timezone)
             $('#timezone').on('change', function() {
                 if (longitudeFromGeo && $('#longitude').val()) {
                     $('#longitude').val('');
