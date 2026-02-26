@@ -1,0 +1,124 @@
+/**
+ * Bazi Calculator Styles
+ * @package Bazi_Calculator
+ * @version 25.0
+ */
+
+.bazi-calculator-container { max-width: 1000px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; }
+.bazi-header { text-align: center; margin-bottom: 30px; }
+.bazi-header h1 { color: #2c3e50; }
+.bazi-version { color: #4CAF50; font-weight: bold; font-size: 14px; margin-top: 5px; }
+.form-section { background: #f5f5f5; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+.form-section h3 { margin-top: 0; margin-bottom: 20px; color: #333; }
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+.form-group { display: flex; flex-direction: column; }
+.form-group label { margin-bottom: 5px; font-weight: bold; color: #333; }
+.form-group input, .form-group select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #4CAF50; box-shadow: 0 0 3px rgba(76, 175, 80, 0.3); }
+.form-group small { margin-top: 5px; color: #666; font-size: 12px; }
+.form-group small a { color: #4CAF50; text-decoration: none; }
+.form-group small a:hover { text-decoration: underline; }
+.form-actions { text-align: center; margin: 30px 0; }
+.bazi-button { padding: 12px 30px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 0 10px; font-size: 16px; font-weight: bold; transition: background 0.3s ease; }
+.bazi-button:hover { background: #45a049; }
+.reset-btn { background: #757575; }
+.reset-btn:hover { background: #616161; }
+.longitude-input-group { display: flex; gap: 8px; align-items: center; }
+.longitude-input-group input { flex: 1; }
+.location-btn { padding: 10px 15px; background: #f5f5f5; color: #333; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background 0.3s; }
+.location-btn:hover { background: #e0e0e0; }
+.location-btn:disabled { background: #f0f0f0; color: #999; cursor: not-allowed; }
+.location-status { margin-top: 5px; font-size: 12px; }
+.location-status.success { color: #4CAF50; }
+.location-status.error { color: #f44336; }
+.location-status.loading { color: #2196F3; }
+.bazi-results { background: white; padding: 20px; border-radius: 5px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+.results-header { text-align: center; margin-bottom: 20px; }
+.results-header h3 { color: #2c3e50; margin: 0; }
+.personal-info { background: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+.personal-info p { margin: 5px 0; color: #333; }
+.four-pillars h4 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+.pillars-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+.pillar { border-radius: 10px; padding: 20px 15px; text-align: center; color: white; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+.pillar-label { font-size: 13px; color: rgba(255, 255, 255, 0.9); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.pillar-animal { width: 200px; height: 200px; margin: 0 auto 10px; object-fit: contain; }
+.pillar-value { font-size: 15px; font-weight: bold; color: white; }
+.pillar-chinese { font-size: 28px; color: #f6daae; margin-top: 8px; letter-spacing: 5px; }
+.pillar.element-wood { background: linear-gradient(135deg, #1B5E20, #2E7D32); }
+.pillar.element-fire { background: linear-gradient(135deg, #B71C1C, #C62828); }
+.pillar.element-earth { background: linear-gradient(135deg, #5D4037, #6D4C41); }
+.pillar.element-metal { background: linear-gradient(135deg, #37474F, #455A64); }
+.pillar.element-water { background: linear-gradient(135deg, #0D47A1, #1565C0); }
+.luck-cycles-section { margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 5px; }
+.luck-cycles-section h4 { text-align: center; color: #2c3e50; margin-top: 0; margin-bottom: 20px; }
+.luck-cycles-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.luck-cycles-info p { margin: 0; padding: 10px; background: white; border-radius: 4px; }
+.cycles-table-container { overflow-x: auto; }
+.cycles-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+.cycles-table th { background: #4CAF50; color: white; padding: 12px; text-align: center; }
+.cycles-table td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+.cycles-table tr:nth-child(even) { background: #f5f5f5; }
+.cycles-table tr:hover { background: #e8f5e9; }
+.verification-section { margin-top: 30px; padding: 20px; background: #f0f7ff; border-radius: 5px; text-align: center; }
+.verify-button { display: inline-block; padding: 12px 25px; background: #ff9800; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; transition: background 0.3s ease; }
+.verify-button:hover { background: #f57c00; color: white; }
+.bazi-loading { text-align: center; padding: 40px; }
+.loading-spinner { border: 5px solid #f3f3f3; border-top: 5px solid #4CAF50; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.bazi-error { background: #ffebee; border: 1px solid #ef5350; color: #d32f2f; padding: 20px; border-radius: 5px; margin-top: 20px; text-align: center; }
+
+@media print {
+    .bazi-form, .form-section, .form-actions, .bazi-loading, .bazi-error, .verification-section { display: none !important; }
+    .bazi-results { display: block !important; box-shadow: none !important; }
+    .bazi-calculator-container { max-width: 100%; padding: 0; }
+    .pillars-grid, .luck-cycles-section { page-break-inside: avoid; }
+    .pillar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    body { font-size: 12pt; }
+}
+
+@media (max-width: 768px) {
+    .bazi-calculator-container { padding: 15px; }
+    .pillars-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .pillar { padding: 15px 10px; min-height: 220px; }
+    .pillar-animal { width: 120px; height: 120px; }
+    .pillar-value { font-size: 13px; }
+    .pillar-chinese { font-size: 22px; }
+    .luck-cycles-info { grid-template-columns: 1fr; }
+    .cycles-table { font-size: 14px; }
+    .cycles-table th, .cycles-table td { padding: 8px 5px; }
+    .bazi-button { padding: 10px 20px; font-size: 14px; }
+}
+
+@media (max-width: 600px) {
+    .cycles-table-container { overflow-x: auto; }
+    .cycles-table { min-width: 400px; }
+}
+
+@media (max-width: 480px) {
+    .bazi-calculator-container { padding: 10px; }
+    .bazi-header h1 { font-size: 24px; }
+    .pillars-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .pillar { padding: 12px 8px; min-height: 180px; }
+    .pillar-label { font-size: 11px; }
+    .pillar-animal { width: 80px; height: 80px; }
+    .pillar-value { font-size: 11px; }
+    .pillar-chinese { font-size: 18px; letter-spacing: 2px; }
+    .form-row { grid-template-columns: 1fr; }
+    .form-section { padding: 15px; }
+    .form-actions { display: flex; flex-direction: column; gap: 12px; }
+    .bazi-button { margin: 0; width: 100%; padding: 16px 30px; font-size: 18px; font-weight: bold; }
+    .personal-info { padding: 10px; font-size: 14px; }
+    .luck-cycles-section { padding: 15px; }
+    .luck-cycles-section h4 { font-size: 16px; }
+    .verification-section { padding: 15px; }
+    .verify-button { padding: 14px 20px; font-size: 16px; width: 100%; text-align: center; box-sizing: border-box; }
+}
+
+@media (max-width: 360px) {
+    .pillars-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .pillar { padding: 10px 5px; min-height: 160px; }
+    .pillar-animal { width: 60px; height: 60px; }
+    .pillar-value { font-size: 10px; }
+    .pillar-chinese { font-size: 16px; }
+    .cycles-table { font-size: 12px; }
+}
