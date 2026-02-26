@@ -4,7 +4,7 @@ Tags: bazi, chinese astrology, four pillars, destiny, zodiac
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.2
-Stable tag: 25.3
+Stable tag: 25.4
 License: GPLv2 or later
 
 Accurate Bazi (Four Pillars of Destiny) calculator with precise astronomical solar longitude calculations.
@@ -27,6 +27,10 @@ Features:
 3. Add `[bazi_calculator]` to any page
 
 == Changelog ==
+
+= 25.4 =
+* Fixed button styles being overridden by WordPress themes (added !important)
+* Buttons now display correctly: green Calculate, gray Reset
 
 = 25.3 =
 * Completely removed localStorage - form never auto-fills from previous session

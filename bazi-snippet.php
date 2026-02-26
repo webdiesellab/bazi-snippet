@@ -1,7 +1,7 @@
 /**
  * Plugin Name: Bazi Calculator
  * Description: Accurate Bazi calculator with precise astronomical calculations
- * Version: 25.3
+ * Version: 25.4
  * Author: Web Diesel
  * License: GPL v2 or later
  * Text Domain: web-diesel.com
@@ -281,8 +281,10 @@ class MasterTsaiBaziCalculatorComplete {
         .form-group label { margin-bottom: 5px; font-weight: bold; }
         .form-group input, .form-group select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
         .form-actions { text-align: center; margin: 30px 0; }
-        .bazi-button { padding: 12px 30px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 0 10px; }
-        .reset-btn { background: #757575; }
+        .bazi-button { padding: 12px 30px !important; background: #4CAF50 !important; color: white !important; border: none !important; border-radius: 4px !important; cursor: pointer !important; margin: 0 10px !important; font-size: 16px !important; font-weight: 600 !important; text-transform: none !important; text-decoration: none !important; display: inline-block !important; line-height: 1.5 !important; }
+        .bazi-button:hover { background: #45a049 !important; color: white !important; }
+        .reset-btn { background: #757575 !important; }
+        .reset-btn:hover { background: #616161 !important; }
         .bazi-results { background: white; padding: 20px; border-radius: 5px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .personal-info { background: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
         .personal-info p { margin: 5px 0; }

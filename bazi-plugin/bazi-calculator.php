@@ -3,7 +3,7 @@
  * Plugin Name: Bazi Calculator
  * Plugin URI: https://web-diesel.com/bazi-calculator
  * Description: Accurate Bazi (Four Pillars of Destiny) calculator with precise astronomical solar longitude calculations based on Master Tsai AI Model.
- * Version: 25.3
+ * Version: 25.4
  * Author: Web Diesel
  * Author URI: https://web-diesel.com
  * License: GPL v2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('BAZI_CALCULATOR_VERSION', '25.3');
+define('BAZI_CALCULATOR_VERSION', '25.4');
 define('BAZI_CALCULATOR_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('BAZI_CALCULATOR_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('BAZI_CALCULATOR_PLUGIN_BASENAME', plugin_basename(__FILE__));
