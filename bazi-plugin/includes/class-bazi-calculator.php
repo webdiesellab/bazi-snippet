@@ -3,7 +3,7 @@
  * Bazi Calculator Class
  * 
  * @package Bazi_Calculator
- * @since 25.0
+ * @since 25.3
  */
 
 if (!defined('ABSPATH')) {
@@ -82,15 +82,7 @@ class Bazi_Calculator {
     }
     
     public function render_calculator($atts) {
-        $atts = shortcode_atts(array(
-            'default_year' => 2001,
-            'default_month' => 10,
-            'default_day' => 15,
-            'default_hour' => 17,
-            'default_minute' => 30,
-            'default_timezone' => -8,
-            'default_gender' => 'female'
-        ), $atts, 'bazi_calculator');
+        $atts = shortcode_atts(array(), $atts, 'bazi_calculator');
         
         ob_start();
         ?>
@@ -105,14 +97,15 @@ class Bazi_Calculator {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="birth_year"><?php _e('Birth Year', 'bazi-calculator'); ?> *</label>
-                            <input type="number" id="birth_year" name="birth_year" min="1900" max="2100" value="<?php echo esc_attr($atts['default_year']); ?>" required>
+                            <input type="number" id="birth_year" name="birth_year" min="1900" max="2100" placeholder="<?php esc_attr_e('e.g., 1990', 'bazi-calculator'); ?>" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="birth_month"><?php _e('Birth Month', 'bazi-calculator'); ?> *</label>
                             <select id="birth_month" name="birth_month" required>
+                                <option value="">-- <?php _e('Select Month', 'bazi-calculator'); ?> --</option>
                                 <?php for($i = 1; $i <= 12; $i++): ?>
-                                    <option value="<?php echo $i; ?>" <?php selected($i, $atts['default_month']); ?>>
+                                    <option value="<?php echo $i; ?>">
                                         <?php echo date_i18n('F', mktime(0,0,0,$i,1)); ?>
                                     </option>
                                 <?php endfor; ?>
@@ -121,26 +114,27 @@ class Bazi_Calculator {
                         
                         <div class="form-group">
                             <label for="birth_day"><?php _e('Birth Day', 'bazi-calculator'); ?> *</label>
-                            <input type="number" id="birth_day" name="birth_day" min="1" max="31" value="<?php echo esc_attr($atts['default_day']); ?>" required>
+                            <input type="number" id="birth_day" name="birth_day" min="1" max="31" placeholder="1-31" required>
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label for="birth_hour"><?php _e('Birth Hour (24h)', 'bazi-calculator'); ?> *</label>
-                            <input type="number" id="birth_hour" name="birth_hour" min="0" max="23" value="<?php echo esc_attr($atts['default_hour']); ?>" required>
+                            <input type="number" id="birth_hour" name="birth_hour" min="0" max="23" placeholder="0-23" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="birth_minute"><?php _e('Birth Minute', 'bazi-calculator'); ?> *</label>
-                            <input type="number" id="birth_minute" name="birth_minute" min="0" max="59" value="<?php echo esc_attr($atts['default_minute']); ?>" required>
+                            <input type="number" id="birth_minute" name="birth_minute" min="0" max="59" placeholder="0-59" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="timezone"><?php _e('Timezone (GMT)', 'bazi-calculator'); ?> *</label>
                             <select id="timezone" name="timezone" required>
+                                <option value="">-- <?php _e('Select Timezone', 'bazi-calculator'); ?> --</option>
                                 <?php for($i = -12; $i <= 14; $i++): ?>
-                                    <option value="<?php echo $i; ?>" <?php selected($i, $atts['default_timezone']); ?>>
+                                    <option value="<?php echo $i; ?>">
                                         GMT<?php echo $i >= 0 ? '+' . $i : $i; ?>
                                     </option>
                                 <?php endfor; ?>
@@ -152,8 +146,9 @@ class Bazi_Calculator {
                         <div class="form-group">
                             <label for="gender"><?php _e('Gender', 'bazi-calculator'); ?> *</label>
                             <select id="gender" name="gender" required>
-                                <option value="male" <?php selected('male', $atts['default_gender']); ?>><?php _e('Male', 'bazi-calculator'); ?></option>
-                                <option value="female" <?php selected('female', $atts['default_gender']); ?>><?php _e('Female', 'bazi-calculator'); ?></option>
+                                <option value="">-- <?php _e('Select Gender', 'bazi-calculator'); ?> --</option>
+                                <option value="male"><?php _e('Male', 'bazi-calculator'); ?></option>
+                                <option value="female"><?php _e('Female', 'bazi-calculator'); ?></option>
                             </select>
                         </div>
                         

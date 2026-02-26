@@ -1,7 +1,7 @@
 /**
  * Bazi Calculator Frontend Scripts
  * @package Bazi_Calculator
- * @version 25.0
+ * @version 25.3
  */
 (function($) {
     'use strict';
@@ -25,7 +25,6 @@
         'Pig': 'https://zodipet.com/wp-content/uploads/2025/12/pig-687x1024.png'
     };
     
-    var STORAGE_KEY = 'bazi_calculator_form_data';
     var longitudeFromGeo = false;
     
     function getEmojisForPillar(pillar) {
@@ -140,35 +139,6 @@
         } catch(e) { console.log('Could not detect timezone:', e); }
     }
     
-    function saveFormData() {
-        var formData = {
-            birth_year: $('#birth_year').val(), birth_month: $('#birth_month').val(),
-            birth_day: $('#birth_day').val(), birth_hour: $('#birth_hour').val(),
-            birth_minute: $('#birth_minute').val(), timezone: $('#timezone').val(),
-            gender: $('#gender').val(), longitude: $('#longitude').val()
-        };
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(formData)); } catch(e) { console.log('Could not save to localStorage:', e); }
-    }
-    
-    function loadFormData() {
-        try {
-            var saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                var data = JSON.parse(saved);
-                if (data.birth_year) $('#birth_year').val(data.birth_year);
-                if (data.birth_month) $('#birth_month').val(data.birth_month);
-                if (data.birth_day) $('#birth_day').val(data.birth_day);
-                if (data.birth_hour) $('#birth_hour').val(data.birth_hour);
-                if (data.birth_minute) $('#birth_minute').val(data.birth_minute);
-                if (data.timezone) $('#timezone').val(data.timezone);
-                if (data.gender) $('#gender').val(data.gender);
-                if (data.longitude) $('#longitude').val(data.longitude);
-                return true;
-            }
-        } catch(e) { console.log('Could not load from localStorage:', e); }
-        return false;
-    }
-    
     function loadFromUrl() {
         var params = new URLSearchParams(window.location.search);
         var hasParams = false;
@@ -186,7 +156,25 @@
     $(document).ready(function() {
         if ($('#bazi-form').length === 0) return;
         
-        $('#bazi-form').on('reset', function() { $('#bazi-results').hide(); $('#bazi-error').hide(); });
+        // Reset button handler - clear form and hide results
+        $('#bazi-form').on('reset', function(e) {
+            e.preventDefault();
+            // Clear all inputs
+            $('#birth_year').val('');
+            $('#birth_month').val('');
+            $('#birth_day').val('');
+            $('#birth_hour').val('');
+            $('#birth_minute').val('');
+            $('#timezone').val('');
+            $('#gender').val('');
+            $('#longitude').val('');
+            // Hide results and errors
+            $('#bazi-results').hide();
+            $('#bazi-error').hide();
+            $('#location-status').empty();
+            // Auto-detect timezone again
+            detectTimezone();
+        });
         
         $('#bazi-form').on('submit', function(e) {
             e.preventDefault();
@@ -236,7 +224,6 @@
                     longitudeFromGeo = true;
                     $btn.prop('disabled', false);
                     $status.removeClass('loading error').addClass('success').text('Location detected: ' + lon + '°');
-                    saveFormData();
                 },
                 function(error) {
                     $btn.prop('disabled', false);
@@ -271,14 +258,11 @@
             }
         });
         
-        $('#bazi-form input, #bazi-form select').on('change', function() { saveFormData(); });
-        
         var loadedFromUrl = loadFromUrl();
-        if (!loadedFromUrl) {
-            var loadedFromStorage = loadFormData();
-            if (!loadedFromStorage) { detectTimezone(); }
-        } else {
+        if (loadedFromUrl) {
             setTimeout(function() { $('#bazi-form').submit(); }, 500);
+        } else {
+            detectTimezone();
         }
     });
 })(jQuery);

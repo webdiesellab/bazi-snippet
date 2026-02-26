@@ -1,7 +1,7 @@
 /**
  * Plugin Name: Bazi Calculator
  * Description: Accurate Bazi calculator with precise astronomical calculations
- * Version: 25.0
+ * Version: 25.3
  * Author: Web Diesel
  * License: GPL v2 or later
  * Text Domain: web-diesel.com
@@ -114,14 +114,15 @@ class MasterTsaiBaziCalculatorComplete {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="birth_year">Birth Year *</label>
-                            <input type="number" id="birth_year" name="birth_year" min="1900" max="2100" value="2001" required>
+                            <input type="number" id="birth_year" name="birth_year" min="1900" max="2100" placeholder="e.g., 1990" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="birth_month">Birth Month *</label>
                             <select id="birth_month" name="birth_month" required>
+                                <option value="">-- Select Month --</option>
                                 <?php for($i = 1; $i <= 12; $i++): ?>
-                                    <option value="<?php echo $i; ?>" <?php echo $i == 10 ? 'selected' : ''; ?>>
+                                    <option value="<?php echo $i; ?>">
                                         <?php echo date('F', mktime(0,0,0,$i,1)); ?>
                                     </option>
                                 <?php endfor; ?>
@@ -130,26 +131,27 @@ class MasterTsaiBaziCalculatorComplete {
                         
                         <div class="form-group">
                             <label for="birth_day">Birth Day *</label>
-                            <input type="number" id="birth_day" name="birth_day" min="1" max="31" value="15" required>
+                            <input type="number" id="birth_day" name="birth_day" min="1" max="31" placeholder="1-31" required>
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label for="birth_hour">Birth Hour (24h) *</label>
-                            <input type="number" id="birth_hour" name="birth_hour" min="0" max="23" value="17" required>
+                            <input type="number" id="birth_hour" name="birth_hour" min="0" max="23" placeholder="0-23" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="birth_minute">Birth Minute *</label>
-                            <input type="number" id="birth_minute" name="birth_minute" min="0" max="59" value="30" required>
+                            <input type="number" id="birth_minute" name="birth_minute" min="0" max="59" placeholder="0-59" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="timezone">Timezone (GMT) *</label>
                             <select id="timezone" name="timezone" required>
+                                <option value="">-- Select Timezone --</option>
                                 <?php for($i = -12; $i <= 14; $i++): ?>
-                                    <option value="<?php echo $i; ?>" <?php echo $i == -8 ? 'selected' : ''; ?>>
+                                    <option value="<?php echo $i; ?>">
                                         GMT<?php echo $i >= 0 ? '+' . $i : $i; ?>
                                     </option>
                                 <?php endfor; ?>
@@ -161,8 +163,9 @@ class MasterTsaiBaziCalculatorComplete {
                         <div class="form-group">
                             <label for="gender">Gender *</label>
                             <select id="gender" name="gender" required>
+                                <option value="">-- Select Gender --</option>
                                 <option value="male">Male</option>
-                                <option value="female" selected>Female</option>
+                                <option value="female">Female</option>
                             </select>
                         </div>
                         
@@ -377,10 +380,24 @@ class MasterTsaiBaziCalculatorComplete {
         
         <script>
         jQuery(document).ready(function($) {
-            // Reset button handler - hide results
-            $('#bazi-form').on('reset', function() {
+            // Reset button handler - clear form and hide results
+            $('#bazi-form').on('reset', function(e) {
+                e.preventDefault();
+                // Clear all inputs
+                $('#birth_year').val('');
+                $('#birth_month').val('');
+                $('#birth_day').val('');
+                $('#birth_hour').val('');
+                $('#birth_minute').val('');
+                $('#timezone').val('');
+                $('#gender').val('');
+                $('#longitude').val('');
+                // Hide results and errors
                 $('#bazi-results').hide();
                 $('#bazi-error').hide();
+                $('#location-status').empty();
+                // Auto-detect timezone again
+                detectTimezone();
             });
             
             $('#bazi-form').on('submit', function(e) {
@@ -744,54 +761,7 @@ class MasterTsaiBaziCalculatorComplete {
                 }
             });
             
-            // 3. localStorage persistence
-            var STORAGE_KEY = 'bazi_calculator_form_data';
-            
-            function saveFormData() {
-                var formData = {
-                    birth_year: $('#birth_year').val(),
-                    birth_month: $('#birth_month').val(),
-                    birth_day: $('#birth_day').val(),
-                    birth_hour: $('#birth_hour').val(),
-                    birth_minute: $('#birth_minute').val(),
-                    timezone: $('#timezone').val(),
-                    gender: $('#gender').val(),
-                    longitude: $('#longitude').val()
-                };
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-                } catch(e) {
-                    console.log('Could not save to localStorage:', e);
-                }
-            }
-            
-            function loadFormData() {
-                try {
-                    var saved = localStorage.getItem(STORAGE_KEY);
-                    if (saved) {
-                        var data = JSON.parse(saved);
-                        if (data.birth_year) $('#birth_year').val(data.birth_year);
-                        if (data.birth_month) $('#birth_month').val(data.birth_month);
-                        if (data.birth_day) $('#birth_day').val(data.birth_day);
-                        if (data.birth_hour) $('#birth_hour').val(data.birth_hour);
-                        if (data.birth_minute) $('#birth_minute').val(data.birth_minute);
-                        if (data.timezone) $('#timezone').val(data.timezone);
-                        if (data.gender) $('#gender').val(data.gender);
-                        if (data.longitude) $('#longitude').val(data.longitude);
-                        return true; // Data was loaded
-                    }
-                } catch(e) {
-                    console.log('Could not load from localStorage:', e);
-                }
-                return false;
-            }
-            
-            // Save on form input changes
-            $('#bazi-form input, #bazi-form select').on('change', function() {
-                saveFormData();
-            });
-            
-            // 4. Load from URL parameters (for shared links)
+            // Load from URL parameters (for shared links)
             function loadFromUrl() {
                 var params = new URLSearchParams(window.location.search);
                 var hasParams = false;
@@ -813,22 +783,18 @@ class MasterTsaiBaziCalculatorComplete {
             // ============================================
             
             // On page load: priority order
-            // 1. URL parameters (shared link)
-            // 2. localStorage (previous session)
-            // 3. Auto-detect timezone
+            // 1. URL parameters (shared link) - auto-calculate
+            // 2. Otherwise - empty form with auto-detected timezone
             
             var loadedFromUrl = loadFromUrl();
-            if (!loadedFromUrl) {
-                var loadedFromStorage = loadFormData();
-                if (!loadedFromStorage) {
-                    // Only auto-detect timezone if no saved data
-                    detectTimezone();
-                }
-            } else {
+            if (loadedFromUrl) {
                 // Auto-calculate if loaded from shared link
                 setTimeout(function() {
                     $('#bazi-form').submit();
                 }, 500);
+            } else {
+                // Empty form - just auto-detect timezone
+                detectTimezone();
             }
         });
         </script>
