@@ -1,4 +1,3 @@
-<?php
 /**
  * Plugin Name: Bazi Calculator
  * Description: Accurate Bazi calculator with precise astronomical calculations
